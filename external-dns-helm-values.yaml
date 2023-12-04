@@ -1,0 +1,19 @@
+image:
+  registry: docker.io
+  repository: bitnami/external-dns
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+sources:
+  # - crd
+  - service
+  - ingress
+  # - contour-httpproxy
+provider: aws
+aws:
+  region: "eu-west-1"
+  zoneType: "public"
+  evaluateTargetHealth: false
+domainFilters: ["my-domain.xyz"]
+policy: sync
+registry: "txt"
+txtOwnerId: "my-identifier-my-domain" 
