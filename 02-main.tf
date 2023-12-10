@@ -58,6 +58,20 @@ module "cloudfront_policies" {
   cloudfront_policies = var.cloudfront_policies
 }
 
+
+##################################################
+################# Hosted Zone  ###################
+##################################################
+
+# Module for configuring Route 53
+module "hosted_zone" {
+  source       = "./modules/Hosted_Zone"
+  hosted_zones = ["my-domain.xyz"]
+  tags = {
+    Project     = "demo-project"
+    Environment = "PROD"
+  }
+}
 ##################################################
 ################### Route_53  ####################
 ##################################################
@@ -65,7 +79,7 @@ module "cloudfront_policies" {
 # Module for configuring Route 53
 module "route_53" {
   source    = "./modules/Route_53"
-  zone_name = "my-domain.xyz"
+  zone_name = module.hosted_zone.zone_id[0]
   alias_records = {
     "my-domain.xyz" = {
       type         = "A"

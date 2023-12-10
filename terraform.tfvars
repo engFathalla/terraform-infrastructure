@@ -68,9 +68,9 @@ cloudfront_policies = [
     min_ttl                       = 0
     max_ttl                       = 30672000
     supported_compression_formats = ["BROTLI", "GZIP"]
-    cache_keys_in_cookies = { behavior = "ALL" }
-    cache_keys_in_headers = { behavior = "WHITELIST", items = ["cloudfront-viewer-country"] }
-    cache_keys_in_query_strings = { behavior = "ALL" }
+    cache_keys_in_cookies         = { behavior = "ALL" }
+    cache_keys_in_headers         = { behavior = "WHITELIST", items = ["cloudfront-viewer-country"] }
+    cache_keys_in_query_strings   = { behavior = "ALL" }
   }
 ]
 
@@ -113,9 +113,9 @@ eks_managed_node_groups = {
     max_size                   = 10
     use_custom_launch_template = true
     enable_bootstrap_user_data = true
-    labels = { role = "demo-project" }
-    instance_types = ["t3.medium"]
-    capacity_type  = "ON_DEMAND"
+    labels                     = { role = "demo-project" }
+    instance_types             = ["t3.medium"]
+    capacity_type              = "ON_DEMAND"
     block_device_mappings = {
       xvda = {
         device_name = "/dev/xvda"
@@ -129,7 +129,7 @@ eks_managed_node_groups = {
       }
     }
     taints = {}
-    tags = { Project = "demo-project", Environment = "PROD" }
+    tags   = { Project = "demo-project", Environment = "PROD" }
   }
 }
 # List of AWS authentication roles for EKS

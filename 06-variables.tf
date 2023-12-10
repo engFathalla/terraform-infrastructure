@@ -30,18 +30,18 @@ variable "region" {
 # Map of rules for S3 bucket lifecycle configuration
 variable "rules" {
   type = map(object({
-    status                            = string
-    noncurrent_version_expiration     = optional(object({
-      newer_noncurrent_versions       = number # Number of noncurrent versions Amazon S3 will retain.
-      noncurrent_days                 = number # Number of days an object is noncurrent before S3 can perform the associated action.
+    status = string
+    noncurrent_version_expiration = optional(object({
+      newer_noncurrent_versions = number # Number of noncurrent versions Amazon S3 will retain.
+      noncurrent_days           = number # Number of days an object is noncurrent before S3 can perform the associated action.
     }))
-    noncurrent_version_transition     = optional(object({
-      newer_noncurrent_versions       = number # Number of noncurrent versions Amazon S3 will retain.
-      noncurrent_days                 = number # Number of days an object is noncurrent before S3 can perform the associated action.
-      storage_class                   = string # Class of storage used to store the object.
+    noncurrent_version_transition = optional(object({
+      newer_noncurrent_versions = number # Number of noncurrent versions Amazon S3 will retain.
+      noncurrent_days           = number # Number of days an object is noncurrent before S3 can perform the associated action.
+      storage_class             = string # Class of storage used to store the object.
     }))
     abort_incomplete_multipart_upload = optional(object({
-      days_after_initiation           = number # Number of days after which S3 aborts an incomplete multipart upload.
+      days_after_initiation = number # Number of days after which S3 aborts an incomplete multipart upload.
     }))
   }))
 }

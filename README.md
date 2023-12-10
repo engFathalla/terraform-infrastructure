@@ -2,12 +2,15 @@
 
 This project leverages Terraform to define and provision cloud infrastructure components on AWS. The project is organized into modules, each responsible for specific aspects of the infrastructure.
 
+
 ## Table of Contents
 
 - [General Configuration](#general-configuration)
 - [S3 Buckets and CloudFront](#s3-buckets-and-cloudfront)
 - [CloudFront Functions](#cloudfront-functions)
 - [CloudFront Policies](#cloudfront-policies)
+- [Hosted Zone](#hosted-zone)
+- [Route 53](#route-53)
 - [Network](#network)
 - [Amazon EKS](#amazon-eks)
 - [EKS Configuration](#eks-configuration)
@@ -106,6 +109,34 @@ cloudfront_policies = [
   }
 ]
 ```
+## Hosted Zone
+
+### Variables
+
+- **hosted_zones**: List of hosted zones to configure.
+
+#### Example `terraform.tfvars`:
+
+```hcl
+hosted_zones = ["my-domain.xyz"]
+```
+## Route 53
+
+### Variables
+
+- **zone_name**: The name of the hosted zone.
+- **alias_records**: Map of alias records to configure.
+
+#### Example `terraform.tfvars`:
+
+```hcl
+zone_name = "my-domain.xyz"
+alias_records = {
+  "my-domain.xyz" = {
+    type         = "A"
+    record_value = module.s3_and_cloudfront.s3_distribution[0]
+  }
+}
 
 ## Network
 
