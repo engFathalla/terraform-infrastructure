@@ -1,11 +1,12 @@
 provider "aws" {
-  region = "eu-central-1"
+  region = "eu-west-1"
 }
 
 provider "aws" {
   region = "eu-central-1"
-  alias  = "region2"
+  alias  = "failover_region"
 }
+
 terraform {
   required_providers {
     aws = {

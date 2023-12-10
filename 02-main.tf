@@ -1,20 +1,68 @@
 ##################################################
 ########## S3 Buckets And CloudFront  ############
 ##################################################
+
+# Module for creating S3 buckets and associated CloudFront distributions
 module "s3_and_cloudfront" {
-  source          = "./modules/s3_cf"
-  s3_bucket_names = ["my-project-demo"]
-  project_name    = var.project_name
-  rules           = var.rules
-  tags            = var.tags
-  enable_cf       = true
+  source       = "./modules/S3_CloudFront"
+  project_name = var.project_name
+  tags         = var.tags
+  rules        = var.rules
+
+  s3_bucket = [
+    {
+      name = "dev-privatevhub"
+      default_cache_behavior = {
+        cache_policy_id = module.cloudfront_policies.id[0]
+        function_associations = [
+          {
+            function_arn = module.cloudfront_functions.function_arns[0]
+            event_type   = module.cloudfront_functions.function_event_types[0]
+          }
+          # Add other function associations if needed
+        ]
+      }
+      # Uncomment the Below Section if you've Certificate imported in AWS ACM 
+      # viewer_certificate = {
+      #   acm_certificate_arn      = "arn:aws:acm:us-east-1:**:certificate/***" # type String
+      #   minimum_protocol_version = "TLSv1.2_2021"
+      #   ssl_support_method       = "sni-only"
+      #   aliases                  = ["auth.my-domain.xyz"] # type list(String)
+      # }
+    },
+    # Add other S3 buckets if needed
+  ]
+
   providers = {
-    aws.region2 = aws.region2
+    aws.failover_region = aws.failover_region
   }
 }
+
+##################################################
+############ CloudFront Functions ################
+##################################################
+
+# Module for creating CloudFront functions
+module "cloudfront_functions" {
+  source               = "./modules/CloudFront_Function"
+  cloudfront_functions = var.cloudfront_functions
+}
+
+##################################################
+############ CloudFront Policies #################
+##################################################
+
+# Module for creating CloudFront cache policies
+module "cloudfront_policies" {
+  source              = "./modules/CloudFront_Policy"
+  cloudfront_policies = var.cloudfront_policies
+}
+
 ##################################################
 ################### Route_53  ####################
 ##################################################
+
+# Module for configuring Route 53
 module "route_53" {
   source    = "./modules/Route_53"
   zone_name = "my-domain.xyz"
@@ -25,9 +73,12 @@ module "route_53" {
     }
   }
 }
+
 ##########################################
 ############### Network ##################
 ##########################################
+
+# Module for creating VPC, subnets, and network components
 module "network" {
   source                  = "./modules/Network"
   cidr_vpc                = var.cidr_vpc
@@ -37,18 +88,21 @@ module "network" {
   project_name            = var.project_name
   tags                    = var.tags
 }
+
 ###########################################
 ################# EKS #####################
 ###########################################
+
+# Module for creating Amazon EKS cluster
 module "cluster_eks" {
-  source               = "./modules/EKS"
-  cluster_name         = var.cluster_name
-  cluster_version      = var.cluster_version
-  project_name         = var.project_name
-  env                  = var.env
-  cluster_vpc          = module.network.vpc_id
-  subnet_ids    = module.network.private_subnets
-  eks_node_group_sg_id = module.network.eks_node_group_sg_id
+  source                  = "./modules/EKS"
+  cluster_name            = var.cluster_name
+  cluster_version         = var.cluster_version
+  project_name            = var.project_name
+  env                     = var.env
+  cluster_vpc             = module.network.vpc_id
+  subnet_ids              = module.network.private_subnets
+  eks_node_group_sg_id    = module.network.eks_node_group_sg_id
   eks_managed_node_groups = var.eks_managed_node_groups
   aws_auth_roles          = var.aws_auth_roles
   tags                    = var.tags
@@ -67,6 +121,7 @@ module "cluster_eks" {
 ################## EKS Configuration #####################
 ##########################################################
 
+# Module for configuring Amazon EKS after cluster creation
 module "eks_config" {
   source                  = "./modules/EKS_Config"
   project_name            = var.project_name

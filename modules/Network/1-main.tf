@@ -1,3 +1,4 @@
+# Data sources to fetch availability zones and caller identity
 data "aws_availability_zones" "available" {}
 data "aws_caller_identity" "current" {}
 
@@ -5,6 +6,7 @@ data "aws_caller_identity" "current" {}
 ##################  VPC #################
 ##########################################
 
+# AWS VPC resource definition
 resource "aws_vpc" "vpc" {
   cidr_block           = var.cidr_vpc
   enable_dns_hostnames = true
@@ -15,6 +17,7 @@ resource "aws_vpc" "vpc" {
   )
 }
 
+# AWS Internet Gateway resource definition
 resource "aws_internet_gateway" "aws_internet_gateway" {
   vpc_id = aws_vpc.vpc.id
   tags = merge(
@@ -23,6 +26,7 @@ resource "aws_internet_gateway" "aws_internet_gateway" {
   )
 }
 
+# AWS Public Subnet resource definition
 resource "aws_subnet" "aws_subnet_public" {
   count                   = length(data.aws_availability_zones.available.names)
   vpc_id                  = aws_vpc.vpc.id
@@ -35,6 +39,7 @@ resource "aws_subnet" "aws_subnet_public" {
   )
 }
 
+# AWS Public Route Table resource definition
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.vpc.id
   tags = merge(
@@ -42,20 +47,22 @@ resource "aws_route_table" "public" {
     var.tags,
   )
 }
+
+# AWS Public Route resource definition
 resource "aws_route" "public_route" {
   route_table_id         = aws_route_table.public.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.aws_internet_gateway.id
-
 }
 
+# AWS Public Route Table Association resource definition
 resource "aws_route_table_association" "public" {
   count          = length(data.aws_availability_zones.available.names)
   subnet_id      = element(aws_subnet.aws_subnet_public[*].id, count.index)
   route_table_id = element(aws_route_table.public[*].id, count.index)
 }
 
-
+# AWS Private Subnet resource definition
 resource "aws_subnet" "aws_subnet_private_subnet" {
   count                   = length(data.aws_availability_zones.available.names)
   vpc_id                  = aws_vpc.vpc.id
@@ -68,6 +75,7 @@ resource "aws_subnet" "aws_subnet_private_subnet" {
   )
 }
 
+# AWS Private Route Table resource definition
 resource "aws_route_table" "aws_route_table_private" {
   vpc_id = aws_vpc.vpc.id
   count  = length(data.aws_availability_zones.available.names)
@@ -77,6 +85,7 @@ resource "aws_route_table" "aws_route_table_private" {
   )
 }
 
+# AWS Private Route resource definitions
 resource "aws_route" "private_route_1" {
   route_table_id         = aws_route_table.aws_route_table_private[0].id
   destination_cidr_block = "0.0.0.0/0"
@@ -92,12 +101,15 @@ resource "aws_route" "private_route_3" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.nat_gateway[2].id
 }
+
+# AWS Private Route Table Association resource definition
 resource "aws_route_table_association" "private" {
   count          = length(data.aws_availability_zones.available.names)
   subnet_id      = aws_subnet.aws_subnet_private_subnet[count.index].id
   route_table_id = aws_route_table.aws_route_table_private[count.index].id
 }
 
+# AWS Elastic IPs for NAT Gateways resource definition
 resource "aws_eip" "eipgeneral" {
   count  = length(data.aws_availability_zones.available.names)
   domain = "vpc"
@@ -107,6 +119,7 @@ resource "aws_eip" "eipgeneral" {
   )
 }
 
+# AWS NAT Gateway resource definition
 resource "aws_nat_gateway" "nat_gateway" {
   count         = length(data.aws_availability_zones.available.names)
   allocation_id = aws_eip.eipgeneral[count.index].id
@@ -117,11 +130,8 @@ resource "aws_nat_gateway" "nat_gateway" {
   )
 }
 
-
-
-
+# AWS Security Group for Node Group resource definition
 resource "aws_security_group" "node_group_sg" {
-  # checkov:skip=CKV2_AWS_5: it's been refrenced in external modules
   name_prefix = "${var.project_name}_${var.env}_eks_node_group_sg"
   vpc_id      = aws_vpc.vpc.id
 

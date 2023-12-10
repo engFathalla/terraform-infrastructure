@@ -28,12 +28,12 @@ variable "oidc_provider_arn" {
 }
 ######## Namespaces ########
 variable "namespaces_config" {
-  type        = map(object({
+  type = map(object({
     labels      = optional(map(string))
     annotations = optional(map(string))
   }))
   description = "Configuration for Kubernetes namespaces including labels and annotations."
-  default     = {
+  default = {
     "" = {
       labels      = {}
       annotations = {}
@@ -51,7 +51,7 @@ variable "labels_config" {
 variable "alb_config" {
   type        = any
   description = "Configuration for deploying an Application Load Balancer (ALB)."
-  default     = {
+  default = {
     enable           = false
     helmChartVersion = "1.6.2"
   }
@@ -61,7 +61,7 @@ variable "alb_config" {
 variable "nginx_config" {
   type        = any
   description = "Configuration for deploying Nginx Ingress Controller."
-  default     = {
+  default = {
     enable                 = false
     nginx_helmChartVersion = "1.6.2"
     helm_values_file       = ""
@@ -72,7 +72,7 @@ variable "nginx_config" {
 variable "autoscaler_config" {
   type        = any
   description = "Configuration for deploying the Kubernetes Cluster Autoscaler."
-  default     = {
+  default = {
     enable           = false
     helmChartVersion = "1.6.2"
     helm_values_file = ""
@@ -83,7 +83,7 @@ variable "autoscaler_config" {
 variable "external_dns_config" {
   type        = any
   description = "Configuration for deploying External DNS for Kubernetes."
-  default     = {
+  default = {
     enable           = false
     helmChartVersion = "6.28.5"
     helm_values_file = ""
@@ -94,7 +94,7 @@ variable "external_dns_config" {
 variable "kyverno_config" {
   type        = any
   description = "Configuration for deploying Kyverno, a policy engine for Kubernetes."
-  default     = {
+  default = {
     enable           = false
     helmChartVersion = "3.1.0"
     helm_values_file = ""

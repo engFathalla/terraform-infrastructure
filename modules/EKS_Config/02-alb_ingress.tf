@@ -42,7 +42,7 @@ resource "kubernetes_service_account" "alb" {
 # Apply ALB CRDs to the Kubernetes cluster
 resource "kubectl_manifest" "alb_crds" {
   # Conditional creation based on the enable flag in alb_config
-  count = var.alb_config["enable"] ? length(local.alb_crds_yaml) : 0
+  count     = var.alb_config["enable"] ? length(local.alb_crds_yaml) : 0
   yaml_body = local.alb_crds_yaml[count.index]
   depends_on = [
     kubectl_manifest.features_ns
@@ -52,16 +52,16 @@ resource "kubectl_manifest" "alb_crds" {
 # Deploy the ALB Helm chart to manage the Application Load Balancer
 resource "helm_release" "alb" {
   # Conditional creation based on the enable flag in alb_config
-  count      = var.alb_config["enable"] ? 1 : 0
-  name       = "aws-alb"
-  chart      = "aws-load-balancer-controller"
-  repository = "https://aws.github.io/eks-charts"
-  version    = var.alb_config["helmChartVersion"]
+  count        = var.alb_config["enable"] ? 1 : 0
+  name         = "aws-alb"
+  chart        = "aws-load-balancer-controller"
+  repository   = "https://aws.github.io/eks-charts"
+  version      = var.alb_config["helmChartVersion"]
   force_update = true
-  namespace  = kubectl_manifest.features_ns.name
+  namespace    = kubectl_manifest.features_ns.name
 
   # Conditional inclusion of values file if provided in alb_config
-  values     = lookup(var.alb_config, "helm_values_file", "") != "" ? ["${file("${var.alb_config["helm_values_file"]}")}"] : []
+  values = lookup(var.alb_config, "helm_values_file", "") != "" ? ["${file("${var.alb_config["helm_values_file"]}")}"] : []
 
   # Set Helm chart values
   set {
@@ -74,7 +74,7 @@ resource "helm_release" "alb" {
   }
   set {
     name  = "clusterName"
-    value = "${var.cluster_name}"
+    value = var.cluster_name
     # value = data.aws_eks_cluster.default.id
   }
   set {
